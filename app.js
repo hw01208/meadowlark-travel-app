@@ -5,15 +5,32 @@ const expressHandlebars = require('express-handlebars')
 
 const app = express()
 
+// app.disable('x-powered-by')
+
 // 핸들바 뷰 엔진 설정
-app.engine('handlebars', expressHandlebars({
-    defaultLayout: 'main'
+app.engine('.hbs', expressHandlebars({
+    extname: '.hbs',
+    defaultLayout: 'main',
+    helpers: {
+        section: function (name, options) {
+            if (!this._sections)
+                this._sections = {}
+            this._sections[name] = options.fn(this)
+            return null
+        }
+    }
 }))
-app.set('view engine', 'handlebars')
+app.set('view engine', '.hbs')
 
 const port = process.env.PORT || 3000
 
 app.use(express.static(__dirname + '/public'))
+
+// X-Powered-By 헤더 비활성화
+// app.get('*', (req, res) => {
+//     res.send(`Open your dev tools and examine your headers; ` +
+//         `you'll notice there is no x-powered-by header!`)
+// })
 
 // app.get: 라우트 추가 메서드
 // app.get('/', (req, res) => res.render('home'))
@@ -22,6 +39,14 @@ app.get('/', handlers.home)
 //     res.render('about', { fortune: fortune.getFortune() })
 // })
 app.get('/about', handlers.about)
+
+// header info page
+// app.get('/headers', (req, res) => {
+//     res.type('text/plain')
+//     const headers = Object.entries(req.headers)
+//         .map(([key, value]) => `${key}: ${value}`)
+//     res.send(headers.join('\n'))
+// })
 
 // custom 404 page
 // app.use((req, res) => {
