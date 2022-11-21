@@ -1,11 +1,11 @@
-const handlers = require('./lib/handlers')
 
 const express = require('express')
 const expressHandlebars = require('express-handlebars')
 
-const app = express()
+const handlers = require('./lib/handlers')
+const weatherMiddleware = require('./lib/middleware/weather')
 
-// app.disable('x-powered-by')
+const app = express()
 
 // 핸들바 뷰 엔진 설정
 app.engine('.hbs', expressHandlebars({
@@ -25,6 +25,8 @@ app.set('view engine', '.hbs')
 const port = process.env.PORT || 3000
 
 app.use(express.static(__dirname + '/public'))
+
+app.use(weatherMiddleware)
 
 // X-Powered-By 헤더 비활성화
 // app.get('*', (req, res) => {
